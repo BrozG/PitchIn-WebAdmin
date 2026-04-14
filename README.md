@@ -28,6 +28,14 @@ The **Pitch In Admin Dashboard** is the control center for the Pitch In platform
 - **📱 Responsive Layout**: Works seamlessly on desktop and tablet
 - **🔍 Advanced Search & Filtering**: Find exactly what you're looking for
 
+## 🖼️ Dashboard Screenshots
+
+| Application Queue | Analytics Dashboard | User Management |
+|-------------------|---------------------|-----------------|
+| <img src="../resource/web-admin-queue.png" width="300"> | <img src="../resource/web-admin-dashboard.png" width="300"> | <img src="../resource/web-admin-users.png" width="300"> |
+
+*Note: Add your actual screenshots to the resource directory and update paths*
+
 ---
 
 ## 🏗️ Architecture
@@ -159,32 +167,63 @@ The dashboard connects to:
 ```typescript
 // Authentication
 POST /admin/login
+  - Request: { email, password }
+  - Response: { access_token, user }
+
 GET  /admin/verify
+  - Headers: Authorization: Bearer <token>
+  - Response: { authenticated: true, user }
 
 // Applications
 GET  /admin/applications/pending
+  - Query: ?page=1&limit=20
+  - Response: Paginated list of pending applications
+
 POST /admin/applications/{id}/approve
+  - Request: { feedback? }
+  - Response: { status: "approved" }
+
 POST /admin/applications/{id}/reject
+  - Request: { feedback? }
+  - Response: { status: "rejected" }
 
 // Analytics
 GET  /admin/analytics/overview
+  - Response: { active_users, match_rate, revenue }
+
 GET  /admin/analytics/users
+  - Query: ?timeframe=30d
+  - Response: User growth metrics
+
 GET  /admin/analytics/revenue
+  - Query: ?timeframe=month
+  - Response: Revenue breakdown by source
 
 // Users
 GET  /admin/users
+  - Query: ?search=john&role=investor
+  - Response: Paginated user list
+
 GET  /admin/users/{id}
+  - Response: Full user profile with activity history
+
 POST /admin/users/{id}/suspend
+  - Request: { reason, duration }
+  - Response: { status: "suspended" }
 
 // System
 GET  /admin/system/health
+  - Response: System status with metrics
+
 POST /admin/system/announcement
+  - Request: { title, message, level }
+  - Response: { announcement_id }
 ```
 
 ### Real-Time Features
-- **Supabase Realtime**: Live application queue updates
-- **WebSocket Connections**: Real-time notification delivery
-- **Server-Sent Events**: Analytics dashboard updates
+- **Supabase Realtime**: Live application queue updates (channels: 'applications')
+- **WebSocket Connections**: Real-time notification delivery (ws://localhost:8000/ws/admin)
+- **Server-Sent Events**: Analytics dashboard updates (/admin/analytics/stream)
 
 ---
 
@@ -283,6 +322,12 @@ npm run build:staging
 npm run build:prod
 ```
 
+### Deployment Best Practices
+- Use separate environments (dev, staging, prod)
+- Automate deployments with CI/CD pipelines
+- Enable preview deployments for PRs
+- Monitor deployments with health checks
+
 ---
 
 ## 🔒 Security
@@ -316,10 +361,20 @@ npm run build:prod
 - **User Behavior**: Navigation patterns, feature usage
 
 ### Integration Options
-- **Google Analytics**: For marketing insights
-- **Sentry**: For error tracking and performance
-- **LogRocket**: For session replay
+- **Google Analytics**: For marketing insights (set GA_ID in env)
+- **Sentry**: For error tracking (set SENTRY_DSN in env)
+- **LogRocket**: For session replay (set LOGROCKET_ID in env)
 - **Custom Dashboards**: For business-specific metrics
+
+### Setup Instructions
+1. Add your analytics service IDs to `.env.local`:
+```env
+NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_SENTRY_DSN=https://xxxxx@xxxxx.ingest.sentry.io/xxxxx
+NEXT_PUBLIC_LOGROCKET_ID=app-id/xxxxx
+```
+2. Restart the dev server
+3. Verify data appears in your analytics dashboards
 
 ---
 
